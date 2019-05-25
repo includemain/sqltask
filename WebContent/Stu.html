@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>学生成绩管理系统</title>
+    <link rel="stylesheet" typs="text/css" href="./css/styles.css">
+    <link rel="stylesheet" href="./css/bootstrap.css">
+    <script src="js/vue-2.4.0.js"></script>
+    <script src="./js/vue-resource-1.3.4.js"></script>
+    <script src="js/jquery.js"></script>
+    <script src="js/bootstrap.js"></script>
+	
+</head>
+
+<body>
+    <div class="big">
+        <div class="top">
+
+        </div>
+        <div class="smallbig">
+            <div class="left">
+                <ul>
+                    <a href="#">
+                        <li>首页撒旦</li>
+                    </a>
+                    <a href="#">
+                        <li>首页撒旦</li>
+                    </a>
+                    <a href="#">
+                        <li>首页撒旦</li>
+                    </a>
+
+                </ul>
+            </div>
+            <div class="right">
+                <!---------------------------------------main------------------------------------------------>
+                <div id="app">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading">
+                            <h3 class="panel-title">涛涛的成绩管理系统</h3>
+                        </div>
+                        <div class="panel-body">
+
+                            <span class="form-inline">
+                                <input type="text" class="form-control" placeholder="add ID" v-model="id">
+                                <input type="text" class="form-control" placeholder="add CNAME" v-model="name"
+                                    @keyup.enter="add">
+                                <input type="button" value="添加" class="btn btn-primary" @click="add()">
+                                <input type="text" class="form-control" placeholder="seach ID" v-model="seachID"
+                                    @keyup.enter="creat">
+                                <input type="button" value="seach" class="btn btn-primary" @click="creat()">
+                            </span>
+                        </div>
+                    </div>
+
+
+                    <!-----------------------------table------------------------------->
+                    <table class="table table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>id</th>
+                                <th>name</th>
+                                <th>ctime</th>
+                                <th>ppp</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="item in list" :key="item.id">
+                                <td>{{item.id}}</td>
+                                <td>{{item.cname}}</td>
+                                <td @click="update(item.id)">修改</td>
+                                <td @click="del(item.id)">删除</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span
+                                            aria-hidden="true">&times;</span></button>
+                                    <h4 class="modal-title" id="myModalLabel">修改</h4>
+                                </div>
+                                <div class="modal-body">
+
+                                    <div class="form-group">
+                                        <label for="txt_departmentname">id</label>
+                                        <input type="text" name="txt_departmentname" class="form-control"
+                                            id="txt_departmentname" :value="updateID" placeholder="id"
+                                            v-model="updateID">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="txt_parentdepartment">name</label>
+                                        <input type="text" name="txt_parentdepartment" class="form-control"
+                                            id="txt_parentdepartment" v-model="updateNAME" placeholder="name">
+                                    </div>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-default" data-dismiss="modal"><span
+                                            class="glyphicon glyphicon-remove" aria-hidden="true"></span>取消</button>
+                                    <button type="button" id="btn_submit" class="btn btn-primary" data-dismiss="modal"
+                                        @click="update_sub"><span class="glyphicon glyphicon-floppy-disk"
+                                            aria-hidden="true"></span>保存</button>
+                                </div>
+                            </div>
+
+
+                        </div>
+                    </div>
+
+
+                </div>
+                <!---------------------------------------main------------------------------------------------>
+
+            </div>
+        </div>
+    </div>
+    <script>
+    $(function(){
+    	var user = window.sessionStorage.getItem('user');
+        alert(user);
+    	
+    })
+    
+        new Vue({
+            el: '#app',
+            data: {
+                id: '',
+                name: '',
+                seachID: '',
+                updateID: '',
+                updateNAME: '',
+                list: [
+
+                ]
+            },
+            created() {
+                this.creat();
+            },
+            methods: {
+                creat() {
+                    this.$http.post('QueryAllRecordServlet', { id: this.seachID }, { emulateJSON: true }).then(result => {
+
+
+                        alert(result.body[0]['records'])
+                        this.list = result.body[0]['records'];
+                        this.seachID = ''
+                    },
+                        function () {
+                            alert('请求失败处理')
+                        }
+                    )
+                },
+                add() {
+                    this.$http.post('Addsqlserver', { id: this.id, name: this.name }, { emulateJSON: true }).then(result => {
+                        alert("success");
+
+                        this.id = '';
+                        this.name = ''
+                        alert('插入成功')
+                        window.location.href = window.location.href;
+
+                    },
+                        function () {
+                            alert('defet')
+                        }
+                    )
+
+
+
+                },
+                del(id) {
+                    this.$http.post('Delserver', { id: id }, { emulateJSON: true }).then(result => {
+                        window.location.href = window.location.href;
+                    },
+                        function () {
+                            alert('error');
+                        }
+                    )
+
+                },
+                update(id) {
+                    this.updateID = id;
+                    $("#myModalLabel").text("修改");
+                    $('#myModal').modal();
+                    this.updateNAME = '';
+                },
+                update_sub(id) {
+                    this.$http.post('Updateserver', { id: this.updateID, name: this.updateNAME }, { emulateJSON: true }).then(result => {
+                        this.updateID = '';
+                        this.updateNAME = '';
+                        window.location.href = window.location.href;
+                    },
+                        function () {
+                            alert('error');
+                        }
+                    )
+
+
+                }
+
+            },
+            directives: {
+
+            }
+        })
+    </script>
+</body>
+
+</html>
